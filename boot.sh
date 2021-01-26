@@ -1,0 +1,1 @@
+docker run -it show_image
