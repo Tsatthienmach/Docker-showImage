@@ -1,58 +1,53 @@
 # Base image
 FROM ubuntu:18.04
 
-RUN apt-get update
-RUN apt-get install -y build-essential apt-utils
+# Set ENV
+ENV TZ=Asia
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt-get install -y \ 
+
+# Install all the dependencies
+RUN apt-get update && apt-get install -y \
     wget \
-    cmake \ 
+    build-essential \
+    cmake \
     git \
-    unzip \ 
+    unzip \
     pkg-config \
-    python-dev \ 
-    python-opencv \ 
-    libopencv-dev \ 
-    # libav-tools  \ 
+    python-opencv \
+    libopencv-dev \
     ffmpeg \
-    libjpeg-dev \ 
-    libpng-dev \ 
-    libtiff-dev \ 
-    libjasper-dev \ 
-    libgtk2.0-dev \ 
-    python-numpy \ 
-    python-pycurl \ 
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev
+
+RUN apt-get update && apt-get install -y \
+    # libjasper-dev \
+    libgtk2.0-dev \
+    python-numpy \
+    python-pycurl \
     libatlas-base-dev \
     gfortran \
-    webp \ 
-    python-opencv \ 
+    webp \
+    python-opencv \
     qt5-default \
-    libvtk6-dev \ 
-    zlib1g-dev 
+    libvtk6-dev \
+    zlib1g-dev
 
 
-# Install Open CV - Warning, this takes absolutely forever
-RUN mkdir -p ~/opencv cd ~/opencv && \
-    wget https://github.com/opencv/opencv/archive/3.0.0.zip && \
-    unzip 3.0.0.zip && \
-    rm 3.0.0.zip && \
-    mv opencv-3.0.0 OpenCV && \
-    cd OpenCV && \
-    mkdir build && \ 
+# Get and build opencv
+RUN git clone https://github.com/opencv/opencv.git && \
+    mkdir -p build && \
     cd build && \
-    cmake \
-    -DWITH_QT=ON \ 
-    -DWITH_OPENGL=ON \ 
-    -DFORCE_VTK=ON \
-    -DWITH_TBB=ON \
-    -DWITH_GDAL=ON \
-    -DWITH_XINE=ON \
-    -DBUILD_EXAMPLES=ON .. && \
+    cmake ../opencv && \
     make -j4 && \
-    make install && \ 
-    ldconfig
+    make install
+
+RUN apt-get install -y libgtk2.0-dev
+RUN pip uninstall p\
+RUN echo 'Successfully built'
 
 WORKDIR /usr/app
 COPY . .
 
-CMD ['python3', 'show_image.py']
+CMD ["python", "show_image.py"]
